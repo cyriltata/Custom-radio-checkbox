@@ -22,7 +22,7 @@
         var $this = $(this);
         // only trigger if the input is not inside a label
         if (!$this.closest('label')[0]) {
-          $this.prev().trigger('change.crc', [true]);
+          $this.prev().trigger('change.crc', true);
         }
       },
 
@@ -38,7 +38,7 @@
           input = inputs[l];
 
           // fake input
-          fakeInputElem = $('<i>').addClass(type + (input.checked ? ' ' + type + checkedSuffix : '')).bind('click.crc', forceChange);
+          fakeInputElem = $('<i>').addClass(type + (input.checked ? ' ' + type + checkedSuffix : '')).bind('click', forceChange); //#CHANGE HERE (click.crc to click)
 
           // insert the fake input after the input
           input.parentNode.insertBefore(fakeInputElem[0], input.nextSibling);
@@ -86,6 +86,10 @@
             // uncheck last checked from this group
             if (rdsCache[this.name].checked) {
               rdsCache[this.name].checked.removeClass(rds.type + checkedSuffix);
+  		  //#CHANGE HERE
+			  var $prev = rdsCache[this.name].checked.prev();
+			  $prev.removeAttr('checked');
+			  $(this).trigger("uncheck");
             }
 
             // add checked class to this input and save it as checked for this group
@@ -94,7 +98,10 @@
 
           // if force set to true and is not already checked, check the input
           if (force && !this.checked) {
-            this.checked = true;
+            //this.checked = true;
+			//#CHANGE HERE
+			$(this).attr('checked', 'checked');
+			$(this).trigger("check");
           }
         });
       }
@@ -109,9 +116,19 @@
         // bind checkbox change event
         chs.bind('change.crc', function (e, force) {
           // force change state
-          if (force) {
+		  //#CHANGE HERE
+		  if (force) {
+			  if($(this).attr('checked') === "checked"){
+				  $(this).removeAttr('checked');
+				  $(this).trigger("uncheck");
+			  }else{
+				  $(this).attr('checked', 'checked');
+				  $(this).trigger("check");
+			  }
+		  }
+         /* if (force) {
             this.checked = !this.checked;
-          }
+          }*/
 
           // toggle checked class
           $(this.nextSibling).toggleClass(chs.type + checkedSuffix);
